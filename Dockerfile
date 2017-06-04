@@ -12,12 +12,12 @@ RUN cd /storage/projects/alpr/src && \
       mkdir build && \
       cd build && \
       cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_INSTALL_SYSCONFDIR:PATH=/etc .. && \
-      make && \
+      make -j2 && \
       make install
 
 RUN cd /storage/projects/alpr/src/bindings/python && \
-      python setup.py install && \
-      ./make.sh
+      python setup.py install 
+      #./make.sh
 
 ENTRYPOINT ["python"]
 
