@@ -1,0 +1,10 @@
+version: "3.0"
+
+services:
+    openalpr-web:
+        image: openalpr-web
+        ports:
+        - "8888:8888"
+        environment:
+        - ALPR_COUNTRY_CODE=us
+        - ALPR_TOP_N=5

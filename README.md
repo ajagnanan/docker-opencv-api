@@ -1,19 +1,45 @@
-# Openalpr Webservice in a docker container
+# OpenALPR Webservice
 
-## To Build
+### Build Instructions
+
+To build the project, execute the following command in the project root:
 
 ```
 docker build -t openalpr-web .
 ```
 
-## To Run
+### Run Instructions
+
+To run the project, execute the following command in the project root:
 
 ```
 docker run -d -p 8888:8888 openalpr-web
 ```
 
-## To Test
+or run with docker-compose:
 
 ```
-curl -X POST -F "image=@license.jpg" http://`boot2docker ip`:8888/alpr
+docker-compose up -d
+```
+
+#### Options
+
+Options can be controlled with environment variables:
+
+```
+ALPR_COUNTRY_CODE=us
+ALPR_TOP_N=5
+```
+
+### Available APIs
+
+License plate recognition
+
+```
+POST /alpr
+```
+
+e.g.
+```
+curl -X POST -F "image=@license.jpg" http://localhost:8888/alpr
 ```
