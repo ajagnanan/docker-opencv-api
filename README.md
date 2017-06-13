@@ -1,11 +1,11 @@
-# OpenALPR Webservice
+# OpenCV Webservices
 
 ### Build Instructions
 
 To build the project, execute the following command in the project root:
 
 ```
-docker build -t openalpr-web .
+docker build -t opencv-api .
 ```
 
 ### Run Instructions
@@ -13,7 +13,7 @@ docker build -t openalpr-web .
 To run the project, execute the following command in the project root:
 
 ```
-docker run -d -p 8888:8888 openalpr-web
+docker run -d -p 8888:8888 opencv-api
 ```
 
 or run with docker-compose:
@@ -27,8 +27,8 @@ docker-compose up -d
 Options can be controlled with environment variables:
 
 ```
-ALPR_COUNTRY_CODE=us
-ALPR_TOP_N=5
+OCV_COUNTRY_CODE=us
+OCV_TOP_N=5
 ```
 
 ### Available APIs

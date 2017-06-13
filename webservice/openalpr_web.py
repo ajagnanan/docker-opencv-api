@@ -16,8 +16,8 @@ import io
 import json
 import logging
 
-country_code = os.getenv('ALPR_COUNTRY_CODE', "us")
-top_n = os.getenv('ALPR_TOP_N', "5")
+country_code = os.getenv('OCV_COUNTRY_CODE', "us")
+top_n = os.getenv('OCV_TOP_N', "5")
 
 print('Initialization params:')
 print('country_code: ' + country_code)
