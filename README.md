@@ -41,5 +41,18 @@ POST /alpr
 
 e.g.
 ```
-curl -X POST -F "image=@license.jpg" http://localhost:8888/alpr
+curl -X POST -F "image=@assets/license_fl.jpg" http://localhost:8888/alpr
 ```
+
+___
+QR code recognition
+
+```
+POST /qr
+```
+
+e.g.
+```
+curl -X POST -F "image=@assets/qr_1.jpg" http://localhost:8888/qr
+```
+

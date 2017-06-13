@@ -1,8 +1,8 @@
 FROM python:2
 
 RUN apt-get -y update && \
-    apt-get -y install libopencv-dev libtesseract-dev git cmake build-essential libleptonica-dev liblog4cplus-dev libcurl3-dev beanstalkd && \
-    pip install tornado
+    apt-get -y install libzbar0 libzbar-dev libopencv-dev libtesseract-dev git cmake build-essential libleptonica-dev liblog4cplus-dev libcurl3-dev beanstalkd && \
+    pip install tornado zbar numpy Pillow
 
 ADD openalpr /storage/projects/alpr
 
@@ -21,4 +21,4 @@ ADD webservice /webservice
 
 ENTRYPOINT ["python"]
 
-CMD ["/webservice/openalpr_web.py"]
+CMD ["/webservice/openalpr_web.py", "--logging=info"]
