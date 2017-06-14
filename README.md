@@ -33,6 +33,18 @@ OCV_TOP_N=5
 
 ### Available APIs
 
+Healthcheck
+
+```
+GET /health
+```
+
+e.g.
+```
+curl -X GET http://localhost:8888/health
+```
+
+---
 License plate recognition
 
 ```
@@ -56,3 +68,12 @@ e.g.
 curl -X POST -F "image=@assets/qr_1.jpg" http://localhost:8888/qr
 ```
 
+##### Deployment
+
+[Openshift Online v3](https://manage.openshift.com/) allows for easy `docker-compose.yml` deployments. After configuring the CLI tool, execute the following command to import it into Openshift:
+
+```
+oc import docker-compose -f docker-compose.yml
+```
+
+and configure a route after the pod is up.
