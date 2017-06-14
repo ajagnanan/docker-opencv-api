@@ -31,6 +31,13 @@ alpr.set_top_n(int(top_n))
 scanner = zbar.ImageScanner()
 scanner.parse_config('enable')
 
+class HealthHandler(tornado.web.RequestHandler):
+    def get(self):
+        logging.info('Executing GET')
+        
+        results = {"status": "ok"}
+        self.finish(json.dumps(results))
+
 class AlprHandler(tornado.web.RequestHandler):
     def post(self):
         logging.info('Executing POST')
@@ -89,8 +96,10 @@ class QrHandler(tornado.web.RequestHandler):
 
 application = tornado.web.Application([
     (r"/alpr", AlprHandler),
-    (r"/qr", QrHandler)
+    (r"/qr", QrHandler),
+    (r"/health", HealthHandler)
 ])
+
 
 if __name__ == "__main__":
     application.listen(8888)
