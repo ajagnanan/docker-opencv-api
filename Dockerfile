@@ -19,6 +19,8 @@ RUN cd /storage/projects/alpr/src/bindings/python && \
 
 ADD webservice /webservice
 
+ADD openface /root/data
+
 WORKDIR /webservice
 
 ENTRYPOINT ["gunicorn"]

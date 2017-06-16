@@ -86,7 +86,7 @@ e.g.
 curl -X POST http://localhost:8888/faces/generate
 ```
 
-Generating the model requires that images be in the `openface` folder which is mounted into the docker container under `/root/data`. Additional metadata can be added to the `openface/data.json` file with the key being the folder names in the `openface/images` folder. The model is generated and stored in `openface/data.pickle`. This file can be included statically into an extension image so that generating it isn't necessary.
+Generating the model requires that images be in the `openface` folder, which is mounted into the docker container under `/root/data`. Additional metadata can be added to the `openface/data.json` file with the key being the folder names in the `openface/images` folder. The model is generated and stored in `openface/data.pickle`. This file can be included statically into an extension image so that generating it isn't necessary.
 
 ___
 Faces site
