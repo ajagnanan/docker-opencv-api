@@ -4,6 +4,8 @@ RUN apt-get -y update && \
     apt-get -y install libzbar0 libzbar-dev libopencv-dev libtesseract-dev git cmake build-essential libleptonica-dev liblog4cplus-dev libcurl3-dev beanstalkd && \
     pip install gunicorn bottle zbar numpy Pillow
 
+RUN chmod 777 -R /root
+
 ADD openalpr /storage/projects/alpr
 
 RUN cd /storage/projects/alpr/src && \
