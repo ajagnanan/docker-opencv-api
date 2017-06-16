@@ -1,10 +1,12 @@
-version: "3.0"
+version: "2"
 
 services:
     opencv-api:
-        image: opencv-api
+        image: docker-opencv-api
         ports:
         - "8888:8888"
+        volumes:
+        - ./openface:/root/data
         environment:
         - OCV_COUNTRY_CODE=us
         - OCV_TOP_N=5

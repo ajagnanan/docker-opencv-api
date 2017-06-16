@@ -1,8 +1,8 @@
-FROM python:2
+FROM bamos/openface
 
 RUN apt-get -y update && \
     apt-get -y install libzbar0 libzbar-dev libopencv-dev libtesseract-dev git cmake build-essential libleptonica-dev liblog4cplus-dev libcurl3-dev beanstalkd && \
-    pip install tornado zbar numpy Pillow
+    pip install gunicorn bottle zbar numpy Pillow
 
 ADD openalpr /storage/projects/alpr
 
@@ -19,6 +19,8 @@ RUN cd /storage/projects/alpr/src/bindings/python && \
 
 ADD webservice /webservice
 
-ENTRYPOINT ["python"]
+WORKDIR /webservice
 
-CMD ["/webservice/openalpr_web.py", "--logging=info"]
+ENTRYPOINT ["gunicorn"]
+
+CMD ["web_server:app", "--workers", "8", "--bind=0.0.0.0:8888", "--log-config", "logging.conf", "--access-logfile", "-", "--reload"]
