@@ -10,4 +10,4 @@ EXPOSE 8888
 
 ENTRYPOINT ["gunicorn"]
 
-CMD ["web_server:app", "--workers", "3", "--bind=0.0.0.0:8888", "--log-config", "logging.conf", "--access-logfile", "-", "--reload"]
+CMD ["web_server:app", "--config", "gunicorn.conf", "--log-config", "logging.conf", "--reload"]
