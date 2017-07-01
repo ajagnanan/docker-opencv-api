@@ -1,5 +1,6 @@
 from PIL import Image
 
+import cv2
 import zbar
 import numpy as np
 np.set_printoptions(precision=2)
@@ -15,8 +16,7 @@ import io
 import json
 import logging
 
-from util import *
-import generate_pickle
+import utils
 import config
 
 logger = logging.getLogger(__name__)
@@ -47,8 +47,11 @@ except Exception as e:
 @get('/health')
 def healthCheck():
     logger.info('Executing GET')
-        
-    results = {"status": "ok"}
+    
+    results = {}
+    results["status"] = "ok"
+
+    response.content_type = 'application/json'
     return json.dumps(results)
 
 @post('/lpr')
@@ -65,6 +68,7 @@ def lpr():
 
     results = config.alpr.recognize_array(image_bytes)
     
+    response.content_type = 'application/json'
     return json.dumps(results)
 
 @post('/qrr')
@@ -94,36 +98,15 @@ def qrr():
     for symbol in image:
         #print dir(symbol)
         
-        results['type'] = symbol.type
+        results['type'] = str(symbol.type)
         results['data'] = symbol.data
         results['location'] = symbol.location
         results['quality'] = symbol.quality
         results['count'] = symbol.count
         #results['components'] = symbol.components
 
+    response.content_type = 'application/json'
     return json.dumps(results)
-
-@get('/faces')
-def faces_site():
-    logger.info('Executing GET')
-
-    return static_file("site/faces.html", ".")
-
-@post('/faces/generate')
-def faces_compare():
-    logger.info('Executing POST')
-
-    generate_pickle.generate()
-
-    results = {"status": "ok"}
-    return json.dumps(results)
-
-@get('/faces/<uid>')
-def faces_get(uid):
-    logger.info('Executing GET')
-
-    f = glob.glob("/root/data/images/{}/*".format(uid))
-    return static_file(f[0], '/')
 
 @post('/ofr')
 def ofr():
@@ -141,9 +124,10 @@ def ofr():
         print("Unable to decode posted image!")
         response.status = 500
         return {'error': 'Unable to decode posted image!'}
+
     try:
         start = time.time()
-        rep = getRep(image_data)
+        rep = utils.getRep(image_data)
         print("Got face representation in {} seconds".format(time.time() - start))
     except Exception as e:
         print("Error: {}".format(e))
@@ -161,7 +145,58 @@ def ofr():
             if dot < best:
                 best = dot
                 bestUid = i
+
+    response.content_type = 'application/json'
     return {"uid": bestUid, "confidence": 1 - best/4, "data": data_dict.get(bestUid)}
+
+@post('/odr')
+def odr():
+    logger.info('Executing POST')
+
+    if request.files.get('image'):
+        image_bytes = request.files.get('image').file.read()
+    else:
+        image_bytes = request.body.read()
+
+    if len(image_bytes) <= 0:
+        return {'error': 'Unable to decode posted image!'}
+
+    img_array = np.asarray(bytearray(image_bytes), dtype=np.uint8)
+    print("recieved image of size {}".format(len(img_array)))
+    image_data = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+    if image_data is None:
+        print("Unable to decode posted image!")
+        response.status = 500
+        return {'error': 'Unable to decode posted image!'}
+
+    results = config.mxnet.predict_from_file(image_data)
+
+    response.content_type = 'application/json'
+    return json.dumps(results)
+
+@get('/faces')
+def faces_site():
+    logger.info('Executing GET')
+
+    return static_file("site/faces.html", ".")
+
+@post('/faces/generate')
+def faces_compare():
+    logger.info('Executing POST')
+
+    utils.generatePickle()
+
+    results = {"status": "ok"}
+
+    response.content_type = 'application/json'
+    return json.dumps(results)
+
+@get('/faces/<uid>')
+def faces_get(uid):
+    logger.info('Executing GET')
+
+    f = glob.glob("/root/data/images/{}/*".format(uid))
+    return static_file(f[0], '/')
 
 # start server
 

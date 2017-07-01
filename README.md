@@ -8,6 +8,9 @@ To build the project, execute the following command in the project root:
 docker build -t docker-opencv-api .
 ```
 
+---
+Please reference the [mxnet model gallery](https://github.com/dmlc/mxnet-model-gallery) for accuracy details.
+
 ## Run Instructions
 
 To run the project, use docker-compose for quick configuration setup:
@@ -23,6 +26,7 @@ Options can be controlled with environment variables:
 ```
 OCV_COUNTRY_CODE=us
 OCV_TOP_N=5
+OCV_MXNET_MODEL=squeezenet_v1.1 || vgg19
 ```
 
 ## Available APIs
@@ -47,7 +51,7 @@ POST /lpr
 
 e.g.
 ```
-curl -X POST -F "image=@assets/license_fl.jpg" http://localhost:8888/lpr
+curl -X POST -F "image=@assets/lpr_1.jpg" http://localhost:8888/lpr
 ```
 
 ___
@@ -59,7 +63,7 @@ POST /qrr
 
 e.g.
 ```
-curl -X POST -F "image=@assets/qr_1.jpg" http://localhost:8888/qrr
+curl -X POST -F "image=@assets/qrr_1.jpg" http://localhost:8888/qrr
 ```
 
 ___
@@ -71,7 +75,19 @@ POST /ofr
 
 e.g.
 ```
-curl -X POST -F "image=@assets/qr_1.jpg" http://localhost:8888/ofr
+curl -X POST -F "image=@assets/ofr_1.jpg" http://localhost:8888/ofr
+```
+
+___
+Object detection recognition
+
+```
+POST /odr
+```
+
+e.g.
+```
+curl -X POST -F "image=@assets/odr_1.jpg" http://localhost:8888/odr
 ```
 
 ___
