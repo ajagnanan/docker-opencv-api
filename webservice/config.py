@@ -9,12 +9,12 @@ logger = logging.getLogger(__name__)
 
 country_code = os.getenv('OCV_COUNTRY_CODE', "us")
 top_n = os.getenv('OCV_TOP_N', "5")
-mxnet_model = os.getenv('OCV_MXNET_MODEL', "squeezenet_v1.1")
 
 logger.info('Initialization params:')
 logger.info('country_code: ' + country_code)
 logger.info('top_n: ' + top_n)
-logger.info('mxnet_model: ' + mxnet_model)
+
+# Initialization of variables to be treated as singletons 
 
 # create an alpr
 alpr = Alpr(country_code, "/etc/openalpr/openalpr.conf", "/usr/share/openalpr/runtime_data")
@@ -25,4 +25,5 @@ scanner = zbar.ImageScanner()
 scanner.parse_config('enable')
 
 # create the imagenet instance
-mxnet = ImagenetModel(synset_path='synset.txt', network_prefix=mxnet_model, label_names=['prob_label'])
+squeezenet = ImagenetModel(synset_path='synset.txt', network_prefix='squeezenet_v1.1', label_names=['prob_label'])
+vgg19 = ImagenetModel(synset_path='synset.txt', network_prefix='vgg19', label_names=['prob_label'])

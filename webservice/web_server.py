@@ -169,8 +169,15 @@ def odr():
         response.status = 500
         return {'error': 'Unable to decode posted image!'}
 
-    results = config.mxnet.predict_from_file(image_data)
+    results = {}
+    mxnetModel = request.forms.get('model', default='squeezenet_v1.1')
+    if mxnetModel == 'vgg19':
+        results = config.vgg19.predict_from_file(image_data)
+    else:
+        mxnetModel = 'squeezenet_v1.1'
+        results = config.squeezenet.predict_from_file(image_data)
 
+    results['model'] = mxnetModel
     response.content_type = 'application/json'
     return json.dumps(results)
 

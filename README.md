@@ -87,8 +87,10 @@ POST /odr
 
 e.g.
 ```
-curl -X POST -F "image=@assets/odr_1.jpg" http://localhost:8888/odr
+curl -X POST -F "image=@assets/odr_1.jpg" -F "model=vgg19" http://localhost:8888/odr
 ```
+
+The model parameter is optional and defaults to `squeezenet_v1.1`
 
 ___
 Build OpenFace model
