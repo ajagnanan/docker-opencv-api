@@ -117,37 +117,34 @@ def ofr():
     else:
         image_bytes = request.body.read()
 
+    if len(image_bytes) <= 0:
+        return {'error': 'Unable to decode posted image!'}
+
     img_array = np.asarray(bytearray(image_bytes), dtype=np.uint8)
     print("recieved image of size {}".format(len(img_array)))
     image_data = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-    if image_data is None:
-        print("Unable to decode posted image!")
-        response.status = 500
-        return {'error': 'Unable to decode posted image!'}
 
-    try:
-        start = time.time()
-        rep = utils.getRep(image_data)
-        print("Got face representation in {} seconds".format(time.time() - start))
-    except Exception as e:
-        print("Error: {}".format(e))
-        response.status = 500
-        return {'error': str(e)}
-    ids_to_compare = request.params.get('ids_to_compare', reps.keys())
-    best = 4
-    bestUid = "unknown"
-    for i in ids_to_compare:
-        if type(reps[i]) is not list:
-            reps[i] = [reps[i]]
-        for r in reps[i]:
-            d = rep - r
-            dot = np.dot(d,d)
-            if dot < best:
-                best = dot
-                bestUid = i
+    detectors = config.dlibFaceDetector(image_data, 1)
+    logger.info('Number of faces detected: {}'.format(len(detectors)))
+    
+    results = {}
+    results['descriptors'] = []
+    # Now process each face we found.
+    for k, d in enumerate(detectors):
+        logger.info('Detection {}: Left: {} Top: {} Right: {} Bottom: {}'.format(k, d.left(), d.top(), d.right(), d.bottom()))
+        # Get the landmarks/parts for the face in box d.
+        shape = config.dlibShapePredictor(image_data, d)
+        # Compute the 128D vector that describes the face in img identified by
+        # shape.  In general, if two face descriptor vectors have a Euclidean
+        # distance between them less than 0.6 then they are from the same
+        # person, otherwise they are from different people.  He we just print
+        # the vector to the screen.
+        faceDescriptor = config.dlibFaceRecognitionModel.compute_face_descriptor(image_data, shape)
+        print type(faceDescriptor).__name__
+        results['descriptors'].append(str(faceDescriptor))
 
     response.content_type = 'application/json'
-    return {"uid": bestUid, "confidence": 1 - best/4, "data": data_dict.get(bestUid)}
+    return json.dumps(results)
 
 @post('/odr')
 def odr():
@@ -180,30 +177,6 @@ def odr():
     results['model'] = mxnetModel
     response.content_type = 'application/json'
     return json.dumps(results)
-
-@get('/faces')
-def faces_site():
-    logger.info('Executing GET')
-
-    return static_file("site/faces.html", ".")
-
-@post('/faces/generate')
-def faces_compare():
-    logger.info('Executing POST')
-
-    utils.generatePickle()
-
-    results = {"status": "ok"}
-
-    response.content_type = 'application/json'
-    return json.dumps(results)
-
-@get('/faces/<uid>')
-def faces_get(uid):
-    logger.info('Executing GET')
-
-    f = glob.glob("/root/data/images/{}/*".format(uid))
-    return static_file(f[0], '/')
 
 # start server
 

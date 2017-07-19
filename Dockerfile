@@ -9,6 +9,8 @@ RUN mkdir /webservice \
  && curl -O http://data.mxnet.io/models/imagenet/vgg/vgg19-symbol.json \
  && curl -O http://data.mxnet.io/models/imagenet/synset.txt
 
+RUN pip install dlib
+
 ADD openface /root/data
 
 ADD webservice /webservice
