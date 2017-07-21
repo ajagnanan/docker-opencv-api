@@ -3,6 +3,7 @@ from PIL import Image
 import cv2
 import zbar
 import numpy as np
+import pickle
 np.set_printoptions(precision=2)
 
 from bottle import *
@@ -16,7 +17,7 @@ import io
 import json
 import logging
 
-import utils
+import openfaceUtils
 import config
 
 logger = logging.getLogger(__name__)
@@ -127,11 +128,24 @@ def ofr():
     detectors = config.dlibFaceDetector(image_data, 1)
     logger.info('Number of faces detected: {}'.format(len(detectors)))
     
-    results = {}
-    results['descriptors'] = []
+    dataPickle = pickle.loads(open('/root/data/data.pickle', 'r').read())
+
+    results = {
+        'faces': {}
+    }
     # Now process each face we found.
     for k, d in enumerate(detectors):
         logger.info('Detection {}: Left: {} Top: {} Right: {} Bottom: {}'.format(k, d.left(), d.top(), d.right(), d.bottom()))
+        results['faces'][k] = {
+            'position': {
+                'top': d.top(),
+                'left': d.left(),
+                'bottom': d.bottom(),
+                'right': d.right()
+            },
+            'matches': {}
+        }
+
         # Get the landmarks/parts for the face in box d.
         shape = config.dlibShapePredictor(image_data, d)
         # Compute the 128D vector that describes the face in img identified by
@@ -140,8 +154,26 @@ def ofr():
         # person, otherwise they are from different people.  He we just print
         # the vector to the screen.
         faceDescriptor = config.dlibFaceRecognitionModel.compute_face_descriptor(image_data, shape)
-        print type(faceDescriptor).__name__
-        results['descriptors'].append(str(faceDescriptor))
+
+        for name in dataPickle:
+            matches = str(openfaceUtils.compare_faces(dataPickle[name], faceDescriptor))
+            matched = False
+
+            print(matches)
+            for match in matches:
+                if match == True:
+                    matched = True
+                    break
+            
+            results['faces'][k]['matches'][name] = {
+                'matched': matched
+            }
+    
+    #serialized = pickle.dumps(faceDescriptor, protocol=0)
+    #print type(deserialized_a).__name__
+    #results['descriptors'].append(str(faceDescriptor))
+    # print type(deserialized_a).__name__
+    # print(deserialized_a['rihanna'][0])
 
     response.content_type = 'application/json'
     return json.dumps(results)
@@ -175,6 +207,17 @@ def odr():
         results = config.squeezenet.predict_from_file(image_data)
 
     results['model'] = mxnetModel
+    response.content_type = 'application/json'
+    return json.dumps(results)
+
+@post('/faces/generate')
+def faces_generate():
+    logger.info('Executing POST')
+
+    openfaceUtils.generatePickle()
+
+    results = {"status": "ok"}
+
     response.content_type = 'application/json'
     return json.dumps(results)
 

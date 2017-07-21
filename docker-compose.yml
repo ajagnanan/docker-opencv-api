@@ -5,6 +5,9 @@ services:
         image: docker-opencv-api
         ports:
         - "9888:8888"
+        volumes:
+        - ./webservice/web_server.py:/webservice/web_server.py
+        - ./webservice/openfaceUtils.py:/webservice/openfaceUtils.py
         environment:
         - OCV_COUNTRY_CODE=us
         - OCV_TOP_N=5
