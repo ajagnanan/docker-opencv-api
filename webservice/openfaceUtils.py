@@ -93,7 +93,9 @@ def face_distance(face_encodings, face_to_compare):
     if len(face_encodings) == 0:
         return np.empty((0))
 
-    return np.linalg.norm(face_encodings - face_to_compare, axis=1)
+    distance = np.linalg.norm(face_encodings - face_to_compare, axis=1)
+    print distance
+    return distance
     
 def compare_faces(known_face_encodings, face_encoding_to_check, tolerance=0.6):
     """
@@ -103,4 +105,4 @@ def compare_faces(known_face_encodings, face_encoding_to_check, tolerance=0.6):
     :param tolerance: How much distance between faces to consider it a match. Lower is more strict. 0.6 is typical best performance.
     :return: A list of True/False values indicating which known_face_encodings match the face encoding to check
     """
-    return list(face_distance(known_face_encodings, np.array(face_encoding_to_check)) <= tolerance)
+    return list(face_distance(known_face_encodings, face_encoding_to_check) <= tolerance)

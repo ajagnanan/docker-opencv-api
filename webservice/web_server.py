@@ -154,9 +154,9 @@ def ofr():
         # person, otherwise they are from different people.  He we just print
         # the vector to the screen.
         faceDescriptor = config.dlibFaceRecognitionModel.compute_face_descriptor(image_data, shape)
-
+        
         for name in dataPickle:
-            matches = str(openfaceUtils.compare_faces(dataPickle[name], faceDescriptor))
+            matches = str(openfaceUtils.compare_faces(dataPickle[name], np.array(faceDescriptor)))
             matched = False
 
             print(matches)
