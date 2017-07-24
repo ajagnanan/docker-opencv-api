@@ -16,7 +16,7 @@ import io
 import json
 import logging
 
-import utils
+import openfaceUtils
 import config
 
 logger = logging.getLogger(__name__)
@@ -125,29 +125,39 @@ def ofr():
         response.status = 500
         return {'error': 'Unable to decode posted image!'}
 
+    bboxes = []
     try:
         start = time.time()
-        rep = utils.getRep(image_data)
+        bboxes = openfaceUtils.getBoundingBoxes(image_data)
         print("Got face representation in {} seconds".format(time.time() - start))
     except Exception as e:
         print("Error: {}".format(e))
         response.status = 500
         return {'error': str(e)}
     ids_to_compare = request.params.get('ids_to_compare', reps.keys())
-    best = 4
-    bestUid = "unknown"
-    for i in ids_to_compare:
-        if type(reps[i]) is not list:
-            reps[i] = [reps[i]]
-        for r in reps[i]:
-            d = rep - r
-            dot = np.dot(d,d)
-            if dot < best:
-                best = dot
-                bestUid = i
+    
+    results = []
+    for bb in bboxes:
+        position = bb['position']
+        rep = bb['rep']
+        best = 4
+        bestUid = "unknown"
+        for i in ids_to_compare:
+            if type(reps[i]) is not list:
+                reps[i] = [reps[i]]
+            for r in reps[i]:
+                d = rep - r
+                dot = np.dot(d,d)
+                if dot < best:
+                    best = dot
+                    bestUid = i
+        results.append({"match": bestUid, "confidence": 1 - best/4, "data": data_dict.get(bestUid), "position": position})
 
+    resp = {
+        'results': results
+    }
     response.content_type = 'application/json'
-    return {"uid": bestUid, "confidence": 1 - best/4, "data": data_dict.get(bestUid)}
+    return json.dumps(resp)
 
 @post('/odr')
 def odr():
@@ -184,7 +194,7 @@ def faces_site():
 def faces_compare():
     logger.info('Executing POST')
 
-    utils.generatePickle()
+    openfaceUtils.generatePickle()
 
     results = {"status": "ok"}
 

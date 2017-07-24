@@ -2,11 +2,13 @@ version: "2"
 
 services:
     opencv-api:
-        image: ajagnanan/docker-opencv-api
+        image: docker-opencv-api
         ports:
-        - "8888:8888"
+        - "9888:8888"
         volumes:
         - ./openface:/root/data
+        - ./webservice/web_server.py:/webservice/web_server.py
+        - ./webservice/openfaceUtils.py:/webservice/openfaceUtils.py
         environment:
         - OCV_COUNTRY_CODE=us
         - OCV_TOP_N=5
