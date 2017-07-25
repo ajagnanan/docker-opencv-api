@@ -12,6 +12,7 @@ from multiprocessing import Pool, cpu_count
 from threading import local
 
 import logging
+import config
 
 logger = logging.getLogger(__name__)
 
@@ -103,5 +104,5 @@ def generatePickle():
 
     logger.info("Loaded {}/{} refs, took {} seconds.".format(successes, len(g), time.time() - start))
 
-    with open("/root/data/data.pickle", 'wb') as f:
+    with open(config.pickleLocation, 'wb') as f:
         pickle.dump(rep_dict, f)

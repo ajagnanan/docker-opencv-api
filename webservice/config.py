@@ -16,6 +16,10 @@ logger.info('country_code: ' + country_code)
 logger.info('top_n: ' + top_n)
 logger.info('mxnet_model: ' + mxnet_model)
 
+# openface vars
+pickleLocation = '/root/data/data.pickle'
+dataLocation = '/root/data/data.json'
+
 # create an alpr
 alpr = Alpr(country_code, "/etc/openalpr/openalpr.conf", "/usr/share/openalpr/runtime_data")
 alpr.set_top_n(int(top_n))

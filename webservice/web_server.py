@@ -15,22 +15,32 @@ sys.path.append('/usr/local/lib/python2.7/site-packages')
 import io
 import json
 import logging
+import urllib
 
 import openfaceUtils
 import config
 
 logger = logging.getLogger(__name__)
 
+try:
+    pickleUrl = os.getenv('OCV_DATA_PICKLE_URL')
+    if pickleUrl:
+        logger.info('Pickle url found, proceeding with download...')
+        logger.info(pickleUrl)
+        urllib.urlretrieve(pickleUrl, config.pickleLocation)
+except Exception as e:
+    logger.error("Unable to load pickle from url")
+
 # configure openface model
-with open("/root/data/data.pickle") as f:
+with open(config.pickleLocation) as f:
     start = time.time()
     reps = pickle.load(f)
-    print("Loaded stored pickle, took {}".format(time.time() - start))
+    logger.info("Loaded stored pickle, took {}".format(time.time() - start))
 
 data_dict = {}
 
 try:
-    with open('/root/data/data.json') as f:
+    with open(config.dataLocation) as f:
         data = json.load(f)
 
     if 'profiles' in data:
@@ -40,7 +50,7 @@ try:
     else:
         data_dict = data
 except Exception as e:
-    print("Unable to load data.json: ", e)
+    logger.error("Unable to load data.json: ", e)
 
 # start endpoints
 
