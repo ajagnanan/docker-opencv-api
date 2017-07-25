@@ -15,22 +15,38 @@ sys.path.append('/usr/local/lib/python2.7/site-packages')
 import io
 import json
 import logging
+import urllib
 
-import utils
+import openfaceUtils
 import config
 
 logger = logging.getLogger(__name__)
 
+try:
+    pickleUrl = os.getenv('OCV_DATA_PICKLE_URL')
+    if pickleUrl:
+        logger.info('Pickle url found, proceeding with download...')
+        logger.info(pickleUrl)
+        urllib.urlretrieve(pickleUrl, config.pickleLocation)
+        jsonUrl = os.getenv('OCV_DATA_JSON_URL')
+        if jsonUrl:
+            logger.info('Pickle data url found, proceeding with download...')
+            logger.info(jsonUrl)
+            urllib.urlretrieve(jsonUrl, config.pickleJsonLocation)
+except Exception as e:
+    logger.error("Unable to load pickle from url")
+    logger.exception(e)
+
 # configure openface model
-with open("/root/data/data.pickle") as f:
+with open(config.pickleLocation) as f:
     start = time.time()
     reps = pickle.load(f)
-    print("Loaded stored pickle, took {}".format(time.time() - start))
+    logger.info("Loaded stored pickle, took {}".format(time.time() - start))
 
 data_dict = {}
 
 try:
-    with open('/root/data/data.json') as f:
+    with open(config.pickleJsonLocation) as f:
         data = json.load(f)
 
     if 'profiles' in data:
@@ -40,7 +56,7 @@ try:
     else:
         data_dict = data
 except Exception as e:
-    print("Unable to load data.json: ", e)
+    logger.error("Unable to load data.json: ", e)
 
 # start endpoints
 
@@ -125,29 +141,39 @@ def ofr():
         response.status = 500
         return {'error': 'Unable to decode posted image!'}
 
+    bboxes = []
     try:
         start = time.time()
-        rep = utils.getRep(image_data)
+        bboxes = openfaceUtils.getBoundingBoxes(image_data)
         print("Got face representation in {} seconds".format(time.time() - start))
     except Exception as e:
         print("Error: {}".format(e))
         response.status = 500
         return {'error': str(e)}
     ids_to_compare = request.params.get('ids_to_compare', reps.keys())
-    best = 4
-    bestUid = "unknown"
-    for i in ids_to_compare:
-        if type(reps[i]) is not list:
-            reps[i] = [reps[i]]
-        for r in reps[i]:
-            d = rep - r
-            dot = np.dot(d,d)
-            if dot < best:
-                best = dot
-                bestUid = i
+    
+    results = []
+    for bb in bboxes:
+        position = bb['position']
+        rep = bb['rep']
+        best = 4
+        bestUid = "unknown"
+        for i in ids_to_compare:
+            if type(reps[i]) is not list:
+                reps[i] = [reps[i]]
+            for r in reps[i]:
+                d = rep - r
+                dot = np.dot(d,d)
+                if dot < best:
+                    best = dot
+                    bestUid = i
+        results.append({"match": bestUid, "confidence": 1 - best/4, "data": data_dict.get(bestUid), "position": position})
 
+    resp = {
+        'results': results
+    }
     response.content_type = 'application/json'
-    return {"uid": bestUid, "confidence": 1 - best/4, "data": data_dict.get(bestUid)}
+    return json.dumps(resp)
 
 @post('/odr')
 def odr():
@@ -184,7 +210,7 @@ def faces_site():
 def faces_compare():
     logger.info('Executing POST')
 
-    utils.generatePickle()
+    openfaceUtils.generatePickle()
 
     results = {"status": "ok"}
 

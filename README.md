@@ -27,6 +27,8 @@ Options can be controlled with environment variables:
 OCV_COUNTRY_CODE=us
 OCV_TOP_N=5
 OCV_MXNET_MODEL=squeezenet_v1.1 || vgg19
+OCV_DATA_PICKLE_URL=
+OCV_DATA_JSON_URL=
 ```
 
 ## Available APIs
@@ -103,6 +105,8 @@ curl -X POST http://localhost:8888/faces/generate
 ```
 
 Generating the model requires that images be in the `openface` folder, which is mounted into the docker container under `/root/data`. Additional metadata can be added to the `openface/data.json` file with the key being the folder names in the `openface/images` folder. The model is generated and stored in `openface/data.pickle`. This file can be included statically into an extension image so that generating it isn't necessary.
+
+An "unknown" dataset is included along with the trained data.pickle to detect unknown faces following the recommendation of [issue #144](https://github.com/cmusatyalab/openface/issues/144)
 
 ___
 Faces site

@@ -12,6 +12,7 @@ from multiprocessing import Pool, cpu_count
 from threading import local
 
 import logging
+import config
 
 logger = logging.getLogger(__name__)
 
@@ -32,12 +33,37 @@ def getRep(bgrImg, align=align, net=net):
     bb = align.getLargestFaceBoundingBox(rgbImg)
     if bb is None:
         raise Exception("Unable to find a face")
-    alignedFace = align.align(96, rgbImg, bb,
-                              landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
+    alignedFace = align.align(96, rgbImg, bb, landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
     if alignedFace is None:
         raise Exception("Unable to align image")
     rep = net.forward(alignedFace)
     return rep 
+
+def getBoundingBoxes(bgrImg, align=align, net=net):
+    rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)
+    bbs = align.getAllFaceBoundingBoxes(rgbImg)
+    if bbs is None:
+        raise Exception("Unable to find a face")
+
+    bboxes = []
+    for bb in bbs:
+        alignedFace = align.align(96, rgbImg, bb, landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
+        if alignedFace is None:
+            raise Exception("Unable to align image")
+        rep = net.forward(alignedFace)
+
+        box = {
+            "position": {
+                "left": bb.left(),
+                "top": bb.top(),
+                "right": bb.right(),
+                "bottom": bb.bottom()
+            },
+            "rep": rep
+        }
+        bboxes.append(box)
+    
+    return bboxes
 
 def loadImageFromFile(imgPath):
     global align, net
@@ -47,7 +73,7 @@ def loadImageFromFile(imgPath):
         logger.info("Unable to load image: {}".format(imgPath))
         return
     try:
-        rep = util.getRep(bgrImg, align, net)
+        rep = getRep(bgrImg, align, net)
     except Exception as e:
         logger.info('{} for {}'.format(e, uid))
         return
@@ -78,5 +104,5 @@ def generatePickle():
 
     logger.info("Loaded {}/{} refs, took {} seconds.".format(successes, len(g), time.time() - start))
 
-    with open("/root/data/data.pickle", 'wb') as f:
+    with open(config.pickleLocation, 'wb') as f:
         pickle.dump(rep_dict, f)
