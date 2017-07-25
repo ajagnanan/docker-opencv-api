@@ -28,6 +28,7 @@ OCV_COUNTRY_CODE=us
 OCV_TOP_N=5
 OCV_MXNET_MODEL=squeezenet_v1.1 || vgg19
 OCV_DATA_PICKLE_URL=
+OCV_DATA_JSON_URL=
 ```
 
 ## Available APIs
