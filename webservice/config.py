@@ -18,7 +18,7 @@ logger.info('mxnet_model: ' + mxnet_model)
 
 # openface vars
 pickleLocation = '/root/data/data.pickle'
-dataLocation = '/root/data/data.json'
+pickleJsonLocation = '/root/data/data.json'
 
 # create an alpr
 alpr = Alpr(country_code, "/etc/openalpr/openalpr.conf", "/usr/share/openalpr/runtime_data")

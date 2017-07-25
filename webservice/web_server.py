@@ -28,8 +28,14 @@ try:
         logger.info('Pickle url found, proceeding with download...')
         logger.info(pickleUrl)
         urllib.urlretrieve(pickleUrl, config.pickleLocation)
+        jsonUrl = os.getenv('OCV_DATA_JSON_URL')
+        if jsonUrl:
+            logger.info('Pickle data url found, proceeding with download...')
+            logger.info(jsonUrl)
+            urllib.urlretrieve(jsonUrl, config.pickleJsonLocation)
 except Exception as e:
     logger.error("Unable to load pickle from url")
+    logger.exception(e)
 
 # configure openface model
 with open(config.pickleLocation) as f:
@@ -40,7 +46,7 @@ with open(config.pickleLocation) as f:
 data_dict = {}
 
 try:
-    with open(config.dataLocation) as f:
+    with open(config.pickleJsonLocation) as f:
         data = json.load(f)
 
     if 'profiles' in data:
