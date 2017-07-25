@@ -15,4 +15,5 @@ services:
         - OCV_MXNET_MODEL=squeezenet_v1.1 # squeezenet_v1.1 || vgg19
         - GUNICORN_WORKERS=1
         - GUNICORN_BIND=0.0.0.0:8888
+        - GUNICORN_TIMEOUT=240
         - GUNICORN_ACCESSLOG=-
