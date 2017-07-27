@@ -29,4 +29,5 @@ scanner = zbar.ImageScanner()
 scanner.parse_config('enable')
 
 # create the imagenet instance
-mxnet = ImagenetModel(synset_path='synset.txt', network_prefix=mxnet_model, label_names=['prob_label'])
+squeezenet = ImagenetModel(synset_path='synset.txt', network_prefix='squeezenet_v1.1', label_names=['prob_label'])
+vgg19 = ImagenetModel(synset_path='synset.txt', network_prefix='vgg19', label_names=['prob_label'])
